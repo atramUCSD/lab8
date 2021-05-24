@@ -57,16 +57,6 @@ describe('Basic user flow for SPA ', () => {
   });
 
   it('Test5: On first Entry page - checking <entry-page> contents', async () => {
-    const JSON = 
-    {
-      title: 'You like jazz?',
-      date: '4/25/2021',
-      content: "According to all known laws of aviation, there is no way a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyway because bees don't care what humans think is impossible.",
-      image: {
-        src: 'https://i1.wp.com/www.thepopcornmuncher.com/wp-content/uploads/2016/11/bee-movie.jpg?resize=800%2C455',
-        alt: 'bee with sunglasses'
-      }
-    }
     /*
      implement test5: Clicking on the first journal entry should contain the following contents: 
         { 
@@ -80,10 +70,21 @@ describe('Basic user flow for SPA ', () => {
         }
       */
 
-        const testEntry = await page.$eval('entry-page', (entry) => {
+        const jsonData = 
+        {
+          title: 'You like jazz?',
+          date: '4/25/2021',
+          content: "According to all known laws of aviation, there is no way a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyway because bees don't care what humans think is impossible.",
+          image: {
+            src: 'https://i1.wp.com/www.thepopcornmuncher.com/wp-content/uploads/2016/11/bee-movie.jpg?resize=800%2C455',
+            alt: 'bee with sunglasses'
+          }
+        } 
+
+        const testEntry = await page.$eval("entry-page", (entry) => {
           return entry.entry;
         })
-        expect(test_entry).toEqual(JSON);
+        expect(testEntry).toEqual(jsonData);
 
   }, 10000);
 
@@ -108,7 +109,7 @@ describe('Basic user flow for SPA ', () => {
     const headerText = await page.evaluate(() => {
       return document.querySelector('header > h1').innerHTML;
     });
-    expect(result).toEqual('Settings');
+    expect(headerText).toEqual('Settings');
   });
 
   it('Test9: On Settings page - checking <body> element classes', async () => {
@@ -122,7 +123,7 @@ describe('Basic user flow for SPA ', () => {
   it('Test10: Clicking the back button, new URL should be /#entry1', async() => {
     // implement test10: Clicking on the back button should update the URL to contain ‘/#entry1’
     await page.goBack();
-    expect(page.url()).toBe('http://127.0.0.1:5500/');
+    expect(page.url()).toBe('http://127.0.0.1:5500/#entry1');
   });
 
   // define and implement test11: Clicking the back button once should bring the user back to the home page
@@ -154,13 +155,11 @@ describe('Basic user flow for SPA ', () => {
 
 
   // define and implement test14: Verify the url is correct when clicking on the second entry
+  // define and implement test14: Verify the url is correct when clicking on the second entry
   it('test14: Verify the url is correct when clicking on the second entry', async () => {
-    const secondEntry = await page.$$('journal-entry');
-    await secondEntry[1].click();
-    await page.waitForNavigation();
-    expect(page.url()).toMatch(/#entry2/);
-
-  });
+    await page.click('journal-entry + journal-entry');
+    expect(page.url()).toContain('#entry2');
+ });
 
   // define and implement test15: Verify the title is current when clicking on the second entry
   it('Test15: On second Entry page - checking page header title', async () => {
@@ -199,15 +198,52 @@ describe('Basic user flow for SPA ', () => {
         const testEntry = await page.$eval('entry-page', (entry) => {
           return entry.entry;
         })
-        expect(test_entry).toEqual(JSON);
+        expect(testEntry).toEqual(JSON);
   });
 
-  // create your own test 17
+ // create your own test 17
+ // test 17: verify url correct when clicking on third entry after going back
+ it('test17: Verify the url is correct when clicking on the third entry', async () => {
+  await page.goBack();
+   await page.click('journal-entry + journal-entry + journal-entry');
+   expect(page.url()).toMatch(/#entry3/);
+ });
 
-  // create your own test 18
+
+  // create test 18: Verify the url is correct one when clicking on the third entry
+  it('Test18: Verify the url is correct one when clicking on the third entry', async () => {
+    const title = await page.$('h1');
+    const testHeader = await page.evaluate(title => title.textContent, title);
+    expect(testHeader).toBe('Entry 3');
+
+  });
 
   // create your own test 19
+  it('Test 19: On # Entry page - checking page header title', async() => {
+    const headerText = await page.evaluate(() => {
+      return document.querySelector('header > h1').innerHTML;
+    });
+    expect(headerText).toEqual('Entry 3');
+  });
 
   // create your own test 20
+  it('Test 20: Verify the entry page contents is correct when clicking on the third entry', async() => {
+    const JSON = 
+        {
+          title: "Ogres are like onions", 
+          date: "4/27/2021",
+          content: "Onions have layers. Ogres have layers. Onions have layers. You get it? We both have layers.",
+          image: {
+            src: "https://advancelocal-adapter-image-uploads.s3.amazonaws.com/image.syracuse.com/home/syr-media/width2048/img/entertainment_impact/photo/shrek-donkeyjpg-daa31aa2b5bedfaa.jpg",
+            alt: "shrek and donkey looking confused",
+          }
+        }
+
+        const testEntry = await page.$eval("entry-page", (entry) => {
+          return entry.entry;
+        })
+        expect(testEntry).toEqual(JSON);
+  })
+  
   
 });
