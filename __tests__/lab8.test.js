@@ -1,3 +1,19 @@
+/**
+ * // async/await can be used.
+  it('works with async/await', async () => {
+  expect.assertions(1);
+  const data = await user.getUserName(4);
+  expect(data).toEqual('Mark');
+});
+
+// async/await can also be used with `.resolves`.
+it('works with async/await and resolves', async () => {
+  expect.assertions(1);
+  await expect(user.getUserName(5)).resolves.toEqual('Paul');
+});
+ * 
+ */
+
 describe('Basic user flow for SPA ', () => {
   beforeAll(async () => {
     await page.goto('http://127.0.0.1:5500');
@@ -29,15 +45,28 @@ describe('Basic user flow for SPA ', () => {
 
   it('Test3: Clicking first <journal-entry>, new URL should contain /#entry1', async () => {
     // implement test3: Clicking on the first journal entry should update the URL to contain “/#entry1”
-
+    await page.click('journal-entry');
+    expect(page.url()).toMatch(/#entry1/);
   });
 
   it('Test4: On first Entry page - checking page header title', async () => {
     // implement test4: Clicking on the first journal entry should update the header text to “Entry 1” 
-
+    const headerText = await page.evaluate(() => {
+      return document.querySelector('header > h1').innerHTML;});
+      expect(headerText).toEqual('Entry 1');
   });
 
   it('Test5: On first Entry page - checking <entry-page> contents', async () => {
+    const JSON = 
+    {
+      title: 'You like jazz?',
+      date: '4/25/2021',
+      content: "According to all known laws of aviation, there is no way a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyway because bees don't care what humans think is impossible.",
+      image: {
+        src: 'https://i1.wp.com/www.thepopcornmuncher.com/wp-content/uploads/2016/11/bee-movie.jpg?resize=800%2C455',
+        alt: 'bee with sunglasses'
+      }
+    }
     /*
      implement test5: Clicking on the first journal entry should contain the following contents: 
         { 
@@ -51,50 +80,127 @@ describe('Basic user flow for SPA ', () => {
         }
       */
 
+        const testEntry = await page.$eval('entry-page', (entry) => {
+          return entry.entry;
+        })
+        expect(test_entry).toEqual(JSON);
+
   }, 10000);
 
   it('Test6: On first Entry page - checking <body> element classes', async () => {
     // implement test6: Clicking on the first journal entry should update the class attribute of <body> to ‘single-entry’
+    const testBody = await page.evaluate(() => {
+      return document.body.className;
+    });
+
+    expect(testBody).toEqual('single-entry');
 
   });
 
   it('Test7: Clicking the settings icon, new URL should contain #settings', async () => {
     // implement test7: Clicking on the settings icon should update the URL to contain “/#settings”
-
+    await page.click('img[alt="settings"]');
+    expect(page.url().includes('settings')).toBe(true); //'http://127.0.0.1:5500/#settings'
   });
 
   it('Test8: On Settings page - checking page header title', async () => {
     // implement test8: Clicking on the settings icon should update the header to be “Settings”
-
+    const headerText = await page.evaluate(() => {
+      return document.querySelector('header > h1').innerHTML;
+    });
+    expect(result).toEqual('Settings');
   });
 
   it('Test9: On Settings page - checking <body> element classes', async () => {
     // implement test9: Clicking on the settings icon should update the class attribute of <body> to ‘settings’
-
+    const bodyTest = await page.$eval("body", (page) => {
+      return page.className;
+    })
+    expect(bodyTest).toBe('settings');
   });
 
   it('Test10: Clicking the back button, new URL should be /#entry1', async() => {
     // implement test10: Clicking on the back button should update the URL to contain ‘/#entry1’
-
+    await page.goBack();
+    expect(page.url()).toBe('http://127.0.0.1:5500/');
   });
 
   // define and implement test11: Clicking the back button once should bring the user back to the home page
+  it('Test 11: Clicking the back button once should bring the user back to the home page', async() => {
+    await page.goBack();
+    expect(page.url()).toBe('http://127.0.0.1:5500/');
+  })
 
 
   // define and implement test12: When the user if on the homepage, the header title should be “Journal Entries”
-
-
+  it('Test12: When the user is on the homepage, the header title should be “Journal Entries"', async () => {
+    const headerText = await page.evaluate(() => {
+      return document.querySelector('header > h1').innerHTML;
+    });
+    await expect(headerText).toEqual('Journal Entries');
+  });
+  
   // define and implement test13: On the home page the <body> element should not have any class attribute 
+  it('Test13: On the home page the <body> element should not have any class attribute', async () => {
+    const bodyElement = await page.$eval('body', (page) => {
+      return page.classList.length;
+    })
+    expect(bodyElement).toBe(0);
+    const emptyCheck = await page.evaluate(() => {
+      return document.body.className;
+    });
+    expect(emptyCheck).toBe('');
+  });
 
 
   // define and implement test14: Verify the url is correct when clicking on the second entry
+  it('test14: Verify the url is correct when clicking on the second entry', async () => {
+    const secondEntry = await page.$$('journal-entry');
+    await secondEntry[1].click();
+    await page.waitForNavigation();
+    expect(page.url()).toMatch(/#entry2/);
 
+  });
 
   // define and implement test15: Verify the title is current when clicking on the second entry
-
+  it('Test15: On second Entry page - checking page header title', async () => {
+    const headerText = await page.evaluate(() => {
+      return document.querySelector('header > h1').innerHTML;
+    });
+    expect(headerText).toEqual('Entry 2');
+  });
 
   // define and implement test16: Verify the entry page contents is correct when clicking on the second entry
+  it('Test 16: Verify the entry page contents is correct when clicking on the second entry', async() => {
+    const JSON = 
+    {
+      title: "Run, Forrest! Run!",
+      date: "4/26/2021",
+      content: "Mama always said life was like a box of chocolates. You never know what you're gonna get.",
+      image: {
+        src: "https://s.abcnews.com/images/Entertainment/HT_forrest_gump_ml_140219_4x3_992.jpg",
+        alt: "forrest running",
+      }
+    }
+    /*
+     implement test5: Clicking on the first journal entry should contain the following contents: 
+        { 
+          title: 'You like jazz?',
+          date: '4/25/2021',
+          content: "According to all known laws of aviation, there is no way a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyway because bees don't care what humans think is impossible.",
+          image: {
+            src: 'https://i1.wp.com/www.thepopcornmuncher.com/wp-content/uploads/2016/11/bee-movie.jpg?resize=800%2C455',
+            alt: 'bee with sunglasses'
+          }
+        }
+      */
 
+
+        const testEntry = await page.$eval('entry-page', (entry) => {
+          return entry.entry;
+        })
+        expect(test_entry).toEqual(JSON);
+  });
 
   // create your own test 17
 
